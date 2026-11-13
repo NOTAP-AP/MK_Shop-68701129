@@ -279,9 +279,25 @@ export default {
     onMounted(fetchProducts);
 
     return {
-      products, categories, selectedCategory, loading, error,
-      isEditMode, editForm, openAddModal, openEditModal, saveProduct, deleteProduct, handleFileUpload,
-      paginatedProducts, totalPages, currentPage, itemsPerPage, goToPage, prevPage, nextPage
+      products,
+       categories,
+        selectedCategory,
+         loading,
+          error,
+      isEditMode,
+       editForm,
+        openAddModal,
+         openEditModal,
+          saveProduct,
+           deleteProduct,
+            handleFileUpload,
+      paginatedProducts, 
+      totalPages,
+       currentPage,
+        itemsPerPage,
+         goToPage,
+          prevPage,
+          nextPage
     };
   }
 };
