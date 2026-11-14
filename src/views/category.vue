@@ -92,7 +92,7 @@
 <script>
 import { onMounted, ref } from "vue";
 
-const API_URL = "http://localhost/MK_Shop/php_api/api_catagorys.php";
+const API_URL = "http://localhost/MK_Shop-68701129/php_api/api_catagorys.php";
 
 export default {
   name: "CategoriesView",
