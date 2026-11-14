@@ -1,92 +1,90 @@
 <template>
-  <main class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
       <div>
-        <h1 class="h3 mb-1">จัดการประเภทสินค้า</h1>
+        <h2 class="mb-1">📂 จัดการประเภทสินค้า</h2>
         <p class="text-muted mb-0">เพิ่ม แก้ไข หรือลบประเภทสินค้า</p>
       </div>
-      <span class="badge text-bg-primary rounded-pill">{{ categories.length }} ประเภท</span>
+      <button class="btn btn-primary" type="button" @click="openAddModal">
+        เพิ่มประเภทสินค้า +
+      </button>
     </div>
 
-    <div v-if="error" class="alert alert-danger" role="alert">{{ error }}</div>
     <div v-if="notice" class="alert alert-success" role="status">{{ notice }}</div>
+    <div v-if="error" class="alert alert-danger" role="alert">{{ error }}</div>
 
-    <section class="card shadow-sm mb-4">
-      <div class="card-body">
-        <h2 class="h5 mb-3">{{ editingId === null ? 'เพิ่มประเภทใหม่' : 'แก้ไขประเภทสินค้า' }}</h2>
-        <form class="row g-2" @submit.prevent="saveCategory">
-          <div class="col-sm">
-            <label for="category-name" class="visually-hidden">ชื่อประเภทสินค้า</label>
-            <input
-              id="category-name"
-              v-model.trim="categoryName"
-              class="form-control"
-              type="text"
-              maxlength="100"
-              placeholder="เช่น เครื่องดื่ม"
-              required
-            />
-          </div>
-          <div class="col-sm-auto d-flex gap-2">
-            <button class="btn btn-primary" type="submit" :disabled="saving">
-              {{ saving ? 'กำลังบันทึก…' : editingId === null ? 'เพิ่มประเภท' : 'บันทึกการแก้ไข' }}
-            </button>
-            <button
-              v-if="editingId !== null"
-              class="btn btn-outline-secondary"
-              type="button"
-              @click="resetForm"
-            >
-              ยกเลิก
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <div class="card shadow-sm">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th scope="col" class="text-center">รหัส</th>
-              <th scope="col">ชื่อประเภทสินค้า</th>
-              <th scope="col" class="text-end">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="loading">
-              <td colspan="3" class="py-4 text-center text-muted">กำลังโหลดข้อมูล…</td>
-            </tr>
-            <tr v-else-if="categories.length === 0">
-              <td colspan="3" class="py-4 text-center text-muted">ยังไม่มีประเภทสินค้า</td>
-            </tr>
-            <tr v-for="category in categories" v-else :key="category.category_id">
-              <td class="text-center">{{ category.category_id }}</td>
-              <td>{{ category.category_name }}</td>
-              <td class="text-end text-nowrap">
-                <button
-                  class="btn btn-sm btn-outline-primary me-2"
-                  type="button"
-                  @click="editCategory(category)"
-                >
-                  แก้ไข
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped align-middle">
+        <thead class="table-primary text-center">
+          <tr>
+            <th scope="col">รหัส</th>
+            <th scope="col">ชื่อประเภทสินค้า</th>
+            <th scope="col">การจัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="loading">
+            <td colspan="3" class="py-4 text-center text-muted">กำลังโหลดข้อมูล...</td>
+          </tr>
+          <tr v-else-if="categories.length === 0">
+            <td colspan="3" class="py-4 text-center text-muted">ยังไม่มีประเภทสินค้า</td>
+          </tr>
+          <tr v-for="category in categories" v-else :key="category.category_id">
+            <td class="text-center">{{ category.category_id }}</td>
+            <td>{{ category.category_name }}</td>
+            <td>
+              <div class="text-center text-nowrap">
+                <button class="btn btn-warning btn-sm me-2" type="button" @click="editCategory(category)">
+                  <i class="bi bi-pencil-square"></i> แก้ไข
                 </button>
                 <button
-                  class="btn btn-sm btn-outline-danger"
+                  class="btn btn-danger btn-sm"
                   type="button"
                   :disabled="saving"
                   @click="deleteCategory(category)"
                 >
-                  ลบ
+                  <i class="bi bi-trash3"></i> ลบ
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="categoryModalTitle" class="modal-title">
+              {{ editingId === null ? 'เพิ่มประเภทสินค้าใหม่' : 'แก้ไขประเภทสินค้า' }}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="saveCategory">
+              <div class="mb-3">
+                <label for="category-name" class="form-label">ชื่อประเภทสินค้า</label>
+                <input
+                  id="category-name"
+                  v-model.trim="categoryName"
+                  class="form-control"
+                  type="text"
+                  maxlength="100"
+                  placeholder="เช่น เครื่องดื่ม"
+                  required
+                  autofocus
+                />
+              </div>
+              <button class="btn btn-success w-100" type="submit" :disabled="saving">
+                {{ saving ? 'กำลังบันทึก...' : editingId === null ? 'เพิ่มประเภทสินค้า' : 'บันทึกการแก้ไข' }}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script>
@@ -104,6 +102,7 @@ export default {
     const saving = ref(false);
     const error = ref("");
     const notice = ref("");
+    let modalInstance = null;
 
     const request = async (url, options) => {
       const response = await fetch(url, options);
@@ -131,11 +130,21 @@ export default {
       editingId.value = null;
     };
 
+    const openAddModal = () => {
+      resetForm();
+      notice.value = "";
+      error.value = "";
+      modalInstance = new window.bootstrap.Modal(document.getElementById("categoryModal"));
+      modalInstance.show();
+    };
+
     const editCategory = (category) => {
       categoryName.value = category.category_name;
       editingId.value = category.category_id;
       notice.value = "";
       error.value = "";
+      modalInstance = new window.bootstrap.Modal(document.getElementById("categoryModal"));
+      modalInstance.show();
     };
 
     const saveCategory = async () => {
@@ -153,6 +162,7 @@ export default {
       try {
         const result = await request(API_URL, { method: "POST", body: formData });
         notice.value = result.message || "บันทึกข้อมูลเรียบร้อย";
+        modalInstance?.hide();
         resetForm();
         await fetchCategories();
       } catch (err) {
@@ -194,6 +204,7 @@ export default {
       saving,
       error,
       notice,
+      openAddModal,
       saveCategory,
       editCategory,
       deleteCategory,
